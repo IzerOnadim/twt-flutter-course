@@ -18,39 +18,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text("Hello World!")),
-        body: const TextInputWidget());
-  }
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class TextInputWidget extends StatefulWidget {
-  const TextInputWidget({Key? key}) : super(key: key);
-
-  @override
-  State<TextInputWidget> createState() => _TextInputWidgetState();
-}
-
-class _TextInputWidgetState extends State<TextInputWidget> {
-  final controller = TextEditingController();
+class _MyHomePageState extends State<MyHomePage> {
   String text = "";
 
-  @override
-  void dispose() {
-    super.dispose();
-    controller.dispose();
-  }
-
   void changeText(String text) {
-    if (text == "Hello World!") {
-      controller.clear();
-      text = "";
-    }
     setState(() {
       this.text = text;
     });
@@ -58,14 +36,49 @@ class _TextInputWidgetState extends State<TextInputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      TextField(
-        controller: controller,
-        decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.message), labelText: "Type a message:"),
-        onChanged: changeText,
+    return Scaffold(
+      appBar: AppBar(title: const Text("Hello World!")),
+      body: Column(children: <Widget>[TextInputWidget(changeText), Text(text)]),
+    );
+  }
+}
+
+class TextInputWidget extends StatefulWidget {
+  final Function(String) callback;
+  const TextInputWidget(this.callback, {Key? key}) : super(key: key);
+
+  @override
+  State<TextInputWidget> createState() => _TextInputWidgetState();
+}
+
+class _TextInputWidgetState extends State<TextInputWidget> {
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  void press() {
+    widget.callback(controller.text);
+    controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.message),
+        suffixIcon: IconButton(
+          onPressed: press,
+          icon: const Icon(Icons.send),
+          splashColor: Colors.blueGrey,
+          tooltip: "Post message",
+        ),
+        labelText: "Type a message:",
       ),
-      Text(text)
-    ]);
+    );
   }
 }
